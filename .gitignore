@@ -350,3 +350,4 @@ MigrationBackup/
 .ionide/
 
 azure-iot-sdk-c/
+cmake/
