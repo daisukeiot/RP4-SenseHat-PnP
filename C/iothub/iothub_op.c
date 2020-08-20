@@ -3,6 +3,10 @@
 #include "deviceMethod.h"
 #include "c2d.h"
 
+#define PNP_ENABLE
+
+static const char g_pnp_model_id[] = "dtmi:com:example:sensehat;1";
+
 bool isConnected = false;
 
 /*
