@@ -115,10 +115,21 @@ extern "C" int lsm9ds1_read(RTIMU_CONFIG* config, ORIANTATION_DATA* accel, ORIAN
 
     if (imuData.fusionPoseValid)
     {
+        // this is for degree
+        // float tmp;
+        
+        // tmp = RTMATH_RAD_TO_DEGREE * imuData.fusionPose.x();
+        // fusion->roll = tmp < 0.0 ? tmp +360 : tmp;
 
-        fusion->roll = (int) (RTMATH_RAD_TO_DEGREE * imuData.fusionPose.x());
-        fusion->pitch = (int) (RTMATH_RAD_TO_DEGREE * imuData.fusionPose.y());
-        fusion->yaw = (int) (RTMATH_RAD_TO_DEGREE * imuData.fusionPose.z());
+        // tmp = RTMATH_RAD_TO_DEGREE * imuData.fusionPose.y();
+        // fusion->pitch = tmp < 0.0 ? tmp +360 : tmp;
+
+        // tmp = RTMATH_RAD_TO_DEGREE * imuData.fusionPose.z();
+        // fusion->yaw = tmp < 0.0 ? tmp +360 : tmp;
+
+        fusion->roll =  imuData.fusionPose.x();
+        fusion->pitch = imuData.fusionPose.y();
+        fusion->yaw =   imuData.fusionPose.z();
         fusion->isValid = true;
     }
 

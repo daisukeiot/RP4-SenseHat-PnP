@@ -34,7 +34,7 @@ int processTelemetry(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClientLL, SENSEHAT_DAT
 #ifdef DEBUG_TELEMETRY
                 printf("Humid  : %f\r\n", hts221_data.humidity);
 #endif
-                json_object_set_number(root_object, "humidity_hts221", hts221_data.humidity);
+                json_object_set_number(root_object, "humidity", hts221_data.humidity);
             }
         }
 
@@ -45,7 +45,7 @@ int processTelemetry(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClientLL, SENSEHAT_DAT
 #ifdef DEBUG_TELEMETRY
                 printf("Temp   : %f\r\n", lps25h_data.temperature);
 #endif
-                json_object_set_number(root_object, "temperature_lps25h", lps25h_data.temperature);
+                json_object_set_number(root_object, "temperature_lps25h", (((lps25h_data.temperature / 5) * 9) + 32));
             }
 
             if (lps25h_data.isPressureValid)
@@ -53,7 +53,7 @@ int processTelemetry(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClientLL, SENSEHAT_DAT
 #ifdef DEBUG_TELEMETRY
                 printf("Humid  : %f\r\n", lps25h_data.pressure);
 #endif
-                json_object_set_number(root_object, "pressure_lps25h", lps25h_data.pressure);
+                json_object_set_number(root_object, "pressure", lps25h_data.pressure);
             }
         }
 
@@ -61,6 +61,9 @@ int processTelemetry(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClientLL, SENSEHAT_DAT
         {
             if (fusion.isValid)
             {
+                json_object_dotset_number(root_object, "imu.yaw", fusion.yaw);
+                json_object_dotset_number(root_object, "imu.roll", fusion.roll);
+                json_object_dotset_number(root_object, "imu.pitch", fusion.pitch);
 #ifdef DEBUG_TELEMETRY
                 printf("Fusion : R %d P %d Y %d\r\n", fusion.roll, fusion.pitch, fusion.yaw);
 #endif
@@ -91,10 +94,10 @@ int processTelemetry(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClientLL, SENSEHAT_DAT
 
         if (json_object_get_count(root_object) > 0)
         {
-#ifdef DEBUG_TELEMETRY
+//#ifdef DEBUG_TELEMETRY
             printf("%s\r\n", json_serialize_to_string_pretty(root_value));
 //            puts(serialized_string);
-#endif
+//#endif
             serialized_string = json_serialize_to_string(root_value);
 
             if (isConnected)

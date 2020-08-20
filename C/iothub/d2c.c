@@ -5,7 +5,14 @@
 */
 static void sendMessageCallback(IOTHUB_CLIENT_CONFIRMATION_RESULT result, void *context)
 {
+#ifdef DEBUG_TELEMETRY
 	LogInfo("Message received by IoT Hub. Result is: %s", MU_ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
+#endif
+
+    if (result != IOTHUB_CLIENT_CONFIRMATION_OK)
+    {
+        LogError("ERR : Message received by IoT Hub. Result is: %s", MU_ENUM_TO_STRING(IOTHUB_CLIENT_CONFIRMATION_RESULT, result));
+    }
 }
 
 /* 
@@ -29,7 +36,9 @@ bool sendMessage(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceHandle, char* message)
     }
     else
     {
+#ifdef DEBUG_TELEMETRY
         LogInfo("IoTHubClient_LL_SendEventAsync accepted message for transmission to IoT Hub");
+#endif
     }
 
     return true;

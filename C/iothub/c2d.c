@@ -70,5 +70,10 @@ IOTHUBMESSAGE_DISPOSITION_RESULT cloudMessageCallback(IOTHUB_MESSAGE_HANDLE mess
         }
     }
 
+    if (_c2dCallback_fn != NULL)
+    {
+        return _c2dCallback_fn(message, userContextCallback);
+    }
+
     return IOTHUBMESSAGE_ACCEPTED;
 }

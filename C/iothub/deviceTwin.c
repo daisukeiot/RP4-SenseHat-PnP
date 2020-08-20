@@ -7,4 +7,9 @@ void deviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned cha
 {
     IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClient = (IOTHUB_DEVICE_CLIENT_LL_HANDLE)userContextCallback;
     LogInfo("%s() invoked : Update Status %s Paload %s", __func__, MU_ENUM_TO_STRING(DEVICE_TWIN_UPDATE_STATE, updateState), payload);
+
+    if (_deviceTwinCallback_fn != NULL)
+    {
+        _deviceTwinCallback_fn(payload, size, userContextCallback);
+    }
 }

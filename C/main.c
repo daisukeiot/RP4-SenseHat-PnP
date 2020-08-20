@@ -2,8 +2,26 @@
 #include "iothub/iothub_op.h"
 #include "senseHat/sensehat.h"
 #include "telemetry.h"
+#include "iothub/callback.h"
 
 extern bool isConnected;
+
+void deviceTwin_CB(const unsigned char* payload, size_t size, void* userContextCallback)
+{
+    LogInfo("%s %s", __func__, payload);
+}
+
+IOTHUBMESSAGE_DISPOSITION_RESULT cd2_CB(IOTHUB_MESSAGE_HANDLE message, void* userContextCallback)
+{
+    LogInfo("%s %s", __func__, message);
+    return IOTHUBMESSAGE_ACCEPTED;
+}
+
+int deviceMethod_CB(const char* methodName, const unsigned char* payload, size_t size, unsigned char** response, size_t* responseSize, void* userContextCallback)
+{
+    LogInfo("%s %s", __func__, methodName);
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -15,12 +33,8 @@ int main(int argc, char *argv[])
 
     senseHat = initialize_senseHat();
 
-    //led_set(senseHat->led, 0, 0, 255, 0, 0);
-
     while (true)
     {
-        processTelemetry(deviceClientLL, senseHat);
-
         if (isConnected != true)
         {
             if (deviceClientLL == NULL)
@@ -31,6 +45,12 @@ int main(int argc, char *argv[])
                     ThreadAPI_Sleep(5000);
                     continue;
                 }
+                else
+                {
+                    set_callback(CB_DEVICE_TWIN, deviceTwin_CB);
+                    set_callback(CB_DEVICE_METHOD, deviceMethod_CB);
+                    set_callback(CB_C2D_MESSAGE, cd2_CB);
+                }
             }
 
             // wait for connection up to 10 sec
@@ -39,7 +59,6 @@ int main(int argc, char *argv[])
             {
                 ThreadAPI_Sleep(100);
                 IoTHubDeviceClient_LL_DoWork(deviceClientLL);
-
             }
 
             if (isConnected != true)
@@ -48,11 +67,11 @@ int main(int argc, char *argv[])
             }
         }
 
-
         if (isConnected == true)
         {
             // process periodic tasks
             // e.g. sending telemetry
+            processTelemetry(deviceClientLL, senseHat);
             ThreadAPI_Sleep(3000);
         }
         else

@@ -51,9 +51,9 @@ typedef struct {
 
 typedef struct {
     bool isValid;
-    int pitch;
-    int roll;
-    int yaw;
+    double pitch;
+    double roll;
+    double yaw;
 } FUSION_DATA;
 
 EXTERNC FB_DEVICE* scan_fb_devices();

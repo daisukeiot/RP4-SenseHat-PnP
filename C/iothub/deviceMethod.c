@@ -19,7 +19,11 @@ int deviceMethodCallback(const char* methodName, const unsigned char* payload, s
 
     LogInfo("%s() invoked : Method %s Paload %s", __func__, methodName, payload);
 
-    if (*response == NULL)
+    if (_deviceMethodCallback_fn != NULL)
+    {
+        result = _deviceMethodCallback_fn(methodName, payload, size, response, responseSize, userContextCallback);
+    }
+    else if (*response == NULL)
     {
         *responseSize = strlen(RESPONSE_STRING);
 

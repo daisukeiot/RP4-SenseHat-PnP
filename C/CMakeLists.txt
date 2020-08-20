@@ -77,6 +77,7 @@ set(pnp-app_h_files
     ./senseHat/hts221.h
     ./senseHat/lps25h.h
     ./senseHat/util.h
+    ./iothub/callback.h
     ./iothub/d2c.h
     ./iothub/c2d.h
     ./iothub/deviceMethod.h
@@ -92,6 +93,7 @@ set(pnp-app_c_files
     ./senseHat/hts221.c
     ./senseHat/lps25h.c
     ./senseHat/util.c
+    ./iothub/callback.c
     ./iothub/d2c.c
     ./iothub/c2d.c
     ./iothub/deviceMethod.c
