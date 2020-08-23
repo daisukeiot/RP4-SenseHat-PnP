@@ -77,6 +77,7 @@ set(pnp-app_h_files
     ./senseHat/hts221.h
     ./senseHat/lps25h.h
     ./senseHat/util.h
+    ./iothub/dps.h
     ./iothub/callback.h
     ./iothub/d2c.h
     ./iothub/c2d.h
@@ -93,6 +94,7 @@ set(pnp-app_c_files
     ./senseHat/hts221.c
     ./senseHat/lps25h.c
     ./senseHat/util.c
+    ./iothub/dps.c
     ./iothub/callback.c
     ./iothub/d2c.c
     ./iothub/c2d.c
@@ -105,10 +107,24 @@ set(pnp-app_c_files
 
 add_subdirectory(./azure-iot-sdk-c)
 include_directories(.)
-
-include_directories(${azure_iot_sdks_SOURCE_DIR}/deps/parson ${MQTT_INC_FOLDER} ${SHARED_UTIL_INC_FOLDER} ${UMOCK_C_INC_FOLDER} ${MACRO_UTILS_INC_FOLDER} ${IOTHUB_CLIENT_INC_FOLDER} ${DIGITALTWIN_CLIENT_INC_FOLDER} ${DEV_AUTH_MODULES_CLIENT_INC_FOLDER})
+include_directories(${azure_iot_sdks_SOURCE_DIR}/deps/parson)
+include_directories(${MQTT_INC_FOLDER})
+include_directories(${SHARED_UTIL_INC_FOLDER})
+include_directories(${UMOCK_C_INC_FOLDER})
+include_directories(${MACRO_UTILS_INC_FOLDER})
+include_directories(${IOTHUB_CLIENT_INC_FOLDER})
+include_directories(${DIGITALTWIN_CLIENT_INC_FOLDER})
+include_directories(${DEV_AUTH_MODULES_CLIENT_INC_FOLDER})
 
 add_executable(RP4SenseHat ${pnp-app_c_files} ${pnp-app_h_files})
+
+if(${use_prov_client})
+    target_link_libraries(RP4SenseHat 
+                          prov_mqtt_transport
+                          iothub_client_mqtt_transport
+                          prov_device_ll_client
+                          prov_auth_client)
+endif()
 
 target_link_libraries(
     RP4SenseHat
@@ -118,3 +134,4 @@ target_link_libraries(
 #    python3.7m
     RTIMULib
 )
+
