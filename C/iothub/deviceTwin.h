@@ -5,7 +5,7 @@
 
 #include "iothub_op.h"
 
-typedef void (*deviceTwin_callback_fn)(const unsigned char* payload, size_t size, void* userContextCallback);
+typedef void (*deviceTwin_callback_fn)(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char* payload, size_t size, void* userContextCallback);
 
 deviceTwin_callback_fn _deviceTwinCallback_fn;
 

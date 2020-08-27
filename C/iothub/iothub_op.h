@@ -2,6 +2,7 @@
 #define _IOTHUB_OP
 
 #include <stdio.h>
+#include "dps.h"
 
 #include "iothub.h"
 #include "iothub_device_client_ll.h"
@@ -16,6 +17,10 @@
 #endif // SET_TRUSTED_CERT_IN_SAMPLES
 
 static const char IOTHUB_CS[] = "IOTHUB_CS";
+static const char DPS_SCOPEID[]   = "DPS_SCOPEID";
+static const char DPS_REGISTRATIONID[] = "DPS_REGISTRATIONID=";
+static const char DPS_DEVICEKEY[] = "DPS_DEVICEKEY";
+static const char DPS_GLOBAL_ENDPOINT[] = "global.azure-devices-provisioning.net";
 
 static bool g_hubClientTraceEnabled = false;
 

@@ -3,9 +3,10 @@
 #include "deviceMethod.h"
 #include "c2d.h"
 
-#define PNP_ENABLE
+//#define PNP_ENABLE
 
-static const char g_pnp_model_id[] = "dtmi:com:example:sensehat;1";
+//static const char g_pnp_model_id[] = "dtmi:iotpnpadt:DigitalTwins;SenseHat;1";
+const char* g_pnp_model_id = NULL;
 
 bool isConnected = false;
 
@@ -38,15 +39,40 @@ static void connection_status_callback(IOTHUB_CLIENT_CONNECTION_STATUS isConfigu
 */
 static IOTHUB_DEVICE_CLIENT_LL_HANDLE CreateDeviceClientLLHandle(void)
 {
-    const char* cs;
+    const char* iothubCs;
+    const char* scopeId;
+    const char* deviceId;
+    const char* deviceKey;
+    
+    g_pnp_model_id = getenv("PNP_MODEL_ID");
 
-    if ((cs = getenv(IOTHUB_CS)) == NULL)
+    if ((iothubCs = getenv(IOTHUB_CS)) != NULL)
     {
-        LogError("Cannot read environment variable=%s", IOTHUB_CS);
+        return IoTHubDeviceClient_LL_CreateFromConnectionString(iothubCs, MQTT_Protocol);
+    }
+    else if ((scopeId = getenv("DPS_SCOPEID")) == NULL)
+    {
+        LogError("Cannot read environment variable=%s", DPS_SCOPEID);
         return NULL;
     }
+    else if ((deviceId = getenv("DPS_REGISTRATIONID")) == NULL)
+    {
+        LogError("Cannot read environment variable=%s", DPS_REGISTRATIONID);
+        return NULL;
+    }
+    else if ((deviceKey = getenv("DPS_DEVICEKEY")) == NULL)
+    {
+        LogError("Cannot read environment variable=%s", DPS_DEVICEKEY);
+        return NULL;
+    }
+    else
+    {
+        LogInfo("Provisioning Start ===>");
+        return ProvisionDevice(scopeId, deviceId, deviceKey, g_pnp_model_id);
+        LogInfo("Provisioning End   <===");
+    } 
 
-    return IoTHubDeviceClient_LL_CreateFromConnectionString(cs, MQTT_Protocol);
+    return NULL;
 }
 
 /*

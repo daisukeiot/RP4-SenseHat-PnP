@@ -10,6 +10,6 @@ void deviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned cha
 
     if (_deviceTwinCallback_fn != NULL)
     {
-        _deviceTwinCallback_fn(payload, size, userContextCallback);
+        _deviceTwinCallback_fn(updateState, payload, size, userContextCallback);
     }
 }
