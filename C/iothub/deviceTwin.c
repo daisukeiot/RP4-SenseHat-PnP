@@ -16,11 +16,16 @@ void deviceTwinCallback(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned cha
     }
 }
 
+static void ReportStatusCallback(int result, void *context)
+{
+    LogInfo("Device Twin reported properties update result: Status code %d", result);
+}
+
 void updateReportedState(IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClientLL, char* buffer)
 {    
     IOTHUB_CLIENT_RESULT iothubClientResult;
 
-    if ((iothubClientResult = IoTHubDeviceClient_LL_SendReportedState(deviceClientLL, (const unsigned char*)buffer, strlen(buffer), NULL, NULL)) != IOTHUB_CLIENT_OK)
+    if ((iothubClientResult = IoTHubDeviceClient_LL_SendReportedState(deviceClientLL, (const unsigned char*)buffer, strlen(buffer), ReportStatusCallback, NULL)) != IOTHUB_CLIENT_OK)
     {
         LogError("Unable to send reported state.  Error=%d", iothubClientResult);
     }

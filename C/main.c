@@ -2,6 +2,7 @@
 #include "senseHat/sensehat.h"
 #include "iothub/callback.h"
 #include "iothub/iothub_op.h"
+#include <math.h>
 
 static const char ch_led_color[] = "led_color";
 
@@ -234,8 +235,6 @@ int processTelemetry(APP_CONTEXT* appContext)
     IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClient;
     SENSEHAT_DATA* senseHat = appContext->deviceData;
 
-    printf("processTelemetry\r\n");
-
     deviceClient = appContext->deviceClient;
 
     JSON_Value *root_value = json_value_init_object();
@@ -248,39 +247,42 @@ int processTelemetry(APP_CONTEXT* appContext)
         {
             if (hts221_data.isTemperatureValid)
             {
-//#ifdef DEBUG_TELEMETRY
-                printf("Temp   : %f\r\n", hts221_data.temperature);
-//#endif
+#if defined(DEBUG_TELEMETRY) || defined(ADT_DEMO)
+                LogInfo("Temperature   : %2f", hts221_data.temperature);
+#endif
                 json_object_set_number(root_object, "temperature_hts221", hts221_data.temperature);
             }
-
+#ifndef ADT_DEMO
             if (hts221_data.isHumidityValid)
             {
 #ifdef DEBUG_TELEMETRY
-                printf("Humid  : %f\r\n", hts221_data.humidity);
+                LogInfo("Humidity      : %02f", hts221_data.humidity);
 #endif
                 json_object_set_number(root_object, "humidity", hts221_data.humidity);
             }
+#endif //ADT_DEMO
         }
 
         if (lps25h_read(senseHat->lps25h, &lps25h_data) >= 0)
         {
             if (lps25h_data.isTemperatureValid)
             {
-#ifdef DEBUG_TELEMETRY
-                printf("Temp   : %f\r\n", lps25h_data.temperature);
+#if defined(DEBUG_TELEMETRY) || defined(ADT_DEMO)
+                LogInfo("Temperature   : %02f", (((lps25h_data.temperature / 5) * 9) + 32));
 #endif
                 json_object_set_number(root_object, "temperature_lps25h", (((lps25h_data.temperature / 5) * 9) + 32));
             }
-
+#ifndef ADT_DEMO
             if (lps25h_data.isPressureValid)
             {
 #ifdef DEBUG_TELEMETRY
-                printf("Humid  : %f\r\n", lps25h_data.pressure);
+                LogInfo("Pressure      : %02f", lps25h_data.pressure);
 #endif
                 json_object_set_number(root_object, "pressure", lps25h_data.pressure);
             }
+#endif // ADT_DEMO
         }
+#ifndef ADT_DEMO
 
         if (lsm9ds1_read(senseHat->rtimu, &accel, &gyro, &compass, &fusion) >= 0)
         {
@@ -290,7 +292,7 @@ int processTelemetry(APP_CONTEXT* appContext)
                 json_object_dotset_number(root_object, "imu.roll", fusion.roll);
                 json_object_dotset_number(root_object, "imu.pitch", fusion.pitch);
 #ifdef DEBUG_TELEMETRY
-                printf("Fusion : R %d P %d Y %d\r\n", fusion.roll, fusion.pitch, fusion.yaw);
+                LogInfo("Fusion : R %d P %d Y %d", fusion.roll, fusion.pitch, fusion.yaw);
 #endif
             }
 
@@ -317,13 +319,18 @@ int processTelemetry(APP_CONTEXT* appContext)
 
         }
 
+#endif // ADT_DEMO
+
         if (json_object_get_count(root_object) > 0)
         {
-#ifdef DEBUG_TELEMETRY
-            printf("%s\r\n", json_serialize_to_string_pretty(root_value));
+#if defined(DEBUG_TELEMETRY)
+            LogInfo("%s", json_serialize_to_string_pretty(root_value));
 //            puts(serialized_string);
 #endif
             serialized_string = json_serialize_to_string(root_value);
+#if defined(ADT_DEMO)
+ //           LogInfo(serialized_string);
+#endif
 
             if (appContext->isConnected)
             {
