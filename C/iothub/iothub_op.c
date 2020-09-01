@@ -3,32 +3,31 @@
 #include "deviceMethod.h"
 #include "c2d.h"
 
-//#define PNP_ENABLE
+#define PNP_ENABLE
 
 //static const char g_pnp_model_id[] = "dtmi:iotpnpadt:DigitalTwins;SenseHat;1";
 const char* g_pnp_model_id = NULL;
-
-bool isConnected = false;
 
 /*
 ** Receives callback when IoT Hub connection status change
 **
 ** To Do : Add DPS support
 */
-static void connection_status_callback(IOTHUB_CLIENT_CONNECTION_STATUS isConfigured, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void* user_context)
+static void connection_status_callback(IOTHUB_CLIENT_CONNECTION_STATUS isConfigured, IOTHUB_CLIENT_CONNECTION_STATUS_REASON reason, void* userContextCallback)
 {
+    APP_CONTEXT* appContext = (APP_CONTEXT* )userContextCallback;
+
     (void)reason;
-    (void)user_context;
 
     if (isConfigured == IOTHUB_CLIENT_CONNECTION_AUTHENTICATED)
     {
         LogInfo("The device client is connected to iothub");
-        isConnected = true;
+        appContext->isConnected = true;
     }
     else
     {
         LogInfo("The device client has been disconnected");
-        isConnected = false;
+        appContext->isConnected = false;
     }
 }
 
@@ -80,7 +79,7 @@ static IOTHUB_DEVICE_CLIENT_LL_HANDLE CreateDeviceClientLLHandle(void)
 **
 ** To Do : Add DPS support
 */
-IOTHUB_DEVICE_CLIENT_LL_HANDLE IoTHubInitialize(void)
+IOTHUB_DEVICE_CLIENT_LL_HANDLE IoTHubInitialize(APP_CONTEXT* appConext)
 {
     int iothubInitResult;
     bool isConfigured;
@@ -89,6 +88,11 @@ IOTHUB_DEVICE_CLIENT_LL_HANDLE IoTHubInitialize(void)
     bool urlAutoEncodeDecode = true;
 
     LogInfo("%s()", __func__);
+
+    if (appConext == NULL)
+    {
+        LogError("AppContext is NULL");
+    }
 
     if ((iothubInitResult = IoTHub_Init()) != 0)
     {
@@ -108,7 +112,7 @@ IOTHUB_DEVICE_CLIENT_LL_HANDLE IoTHubInitialize(void)
 #ifdef PNP_ENABLE
     else if ((iothubResult = IoTHubDeviceClient_LL_SetOption(deviceHandle, OPTION_MODEL_ID, g_pnp_model_id)) != IOTHUB_CLIENT_OK)
     {
-        LogError("Unable to set auto Url encode option, error=%d", iothubResult);
+        LogError("Unable to set model ID, error=%d", iothubResult);
         isConfigured = false;
     }
 #endif
@@ -117,22 +121,22 @@ IOTHUB_DEVICE_CLIENT_LL_HANDLE IoTHubInitialize(void)
         LogError("Unable to set auto Url encode option, error=%d", iothubResult);
         isConfigured = false;
     }
-    else if ((iothubResult = IoTHubDeviceClient_LL_SetConnectionStatusCallback(deviceHandle, connection_status_callback, NULL)) != IOTHUB_CLIENT_OK)
+    else if ((iothubResult = IoTHubDeviceClient_LL_SetConnectionStatusCallback(deviceHandle, connection_status_callback, (void*)appConext)) != IOTHUB_CLIENT_OK)
     {
         LogError("Unable to set Connection Status callback, error=%d", iothubResult);
         isConfigured = false;
     }
-    else if ((iothubResult = IoTHubDeviceClient_LL_SetDeviceMethodCallback(deviceHandle, deviceMethodCallback, (void*)deviceHandle)) != IOTHUB_CLIENT_OK)
+    else if ((iothubResult = IoTHubDeviceClient_LL_SetDeviceMethodCallback(deviceHandle, deviceMethodCallback, (void*)appConext)) != IOTHUB_CLIENT_OK)
     {
         LogError("Unable to set device method callback, error=%d", iothubResult);
         isConfigured = false;
     }
-    else if ((iothubResult = IoTHubDeviceClient_LL_SetDeviceTwinCallback(deviceHandle, deviceTwinCallback, (void*)deviceHandle)) != IOTHUB_CLIENT_OK)
+    else if ((iothubResult = IoTHubDeviceClient_LL_SetDeviceTwinCallback(deviceHandle, deviceTwinCallback, (void*)appConext)) != IOTHUB_CLIENT_OK)
     {
         LogError("Unable to set Device Twin callback, error=%d", iothubResult);
         isConfigured = false;
     }
-    else if ((iothubResult = IoTHubDeviceClient_LL_SetMessageCallback(deviceHandle, cloudMessageCallback, (void*)deviceHandle)) != IOTHUB_CLIENT_OK)
+    else if ((iothubResult = IoTHubDeviceClient_LL_SetMessageCallback(deviceHandle, cloudMessageCallback, (void*)appConext)) != IOTHUB_CLIENT_OK)
     {
         LogError("Unable to set Message callback, error=%d", iothubResult);
         isConfigured = false;

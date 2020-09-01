@@ -7,7 +7,8 @@
 */
 IOTHUBMESSAGE_DISPOSITION_RESULT cloudMessageCallback(IOTHUB_MESSAGE_HANDLE message, void* userContextCallback)
 {
-    IOTHUB_DEVICE_CLIENT_LL_HANDLE deviceClient = (IOTHUB_DEVICE_CLIENT_LL_HANDLE)userContextCallback;
+    APP_CONTEXT* appContext = (APP_CONTEXT* )userContextCallback;
+
     const char* buffer;
     size_t size;
     MAP_HANDLE mapProperties;

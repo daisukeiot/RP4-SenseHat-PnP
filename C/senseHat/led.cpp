@@ -191,7 +191,7 @@ int led_clear(LED_CONFIG* config)
 }
 
 int led_set(LED_CONFIG* config, int x, int y, uint8_t r, uint8_t g, uint8_t b)
-{
+{    
 	uint16_t pixel = rgbTorgb565(r, g, b);
 
 	if(pwrite(config->fd, &pixel, sizeof(pixel), (x + y * 8) * 2) != sizeof(pixel))
@@ -229,4 +229,24 @@ int led_putText(LED_CONFIG* config, const char *strText)
 
 
     return 0;
+}
+
+int led_fill(LED_CONFIG* config, uint8_t r, uint8_t g, uint8_t b)
+{    
+	uint16_t pixel = rgbTorgb565(r, g, b);
+    int row;
+    int col;
+
+    for (row = 0 ; row < 8; row++)
+    {
+        for (col = 0; col < 8; col++)
+        {
+            if(pwrite(config->fd, &pixel, sizeof(pixel), (col + row * 8) * 2) != sizeof(pixel))
+            {
+                printf("ERR : pwrite failed %d\r\n", errno);
+                return errno;
+            }
+        }
+    }
+	return 0;
 }

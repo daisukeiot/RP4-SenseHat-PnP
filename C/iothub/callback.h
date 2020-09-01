@@ -18,6 +18,6 @@ typedef int (*iothub_callback_fn)(const unsigned char* payload, size_t size, voi
 
 // iothub_callback_fn g_callbacks[2] = {NULL};
 
-int set_callback(CALLBACK_ENUM cb, void* fn);
+int set_callback(CALLBACK_ENUM cb, void* fn, void* appContext);
 
 #endif

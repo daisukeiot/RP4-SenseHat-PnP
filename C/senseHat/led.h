@@ -32,6 +32,6 @@ EXTERNC void led_uninitialize(LED_CONFIG* config);
 EXTERNC int led_clear(LED_CONFIG* config);
 EXTERNC int led_set(LED_CONFIG* config, int x, int y, uint8_t r, uint8_t g, uint8_t b);
 EXTERNC int led_putText(LED_CONFIG* config, const char *strText);
-
+EXTERNC int led_fill(LED_CONFIG* config, uint8_t r, uint8_t g, uint8_t b);
 #undef EXTERNC
 #endif
