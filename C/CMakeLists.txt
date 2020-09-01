@@ -12,10 +12,12 @@ project(RP4SenseHat)
 
 option(use_rtimulib "Use RTIMULIB for LSM9DS1" ON)
 option(use_telemetrytrace "Enable additional trace for telemetry and sensor data" OFF)
+option(adt_demo "Speical Build for ADT Demo" OFF)
 # option(USE_PYTHONLIB "Use Python for LSM9DS1" OFF)
 
 message("-- use_rtimulib       : " ${use_rtimulib})
 message("-- use_telemetrytrace : " ${use_telemetrytrace})
+message("-- adt_demo           : " ${adt_demo})
 
 #Compile As C99
 if (CMAKE_VERSION VERSION_LESS "3.1")
@@ -52,7 +54,12 @@ if(CMAKE_CONFIGURATION_TYPES MATCHES Debug)
     endif()
 endif()
 
-if(use_rtimulib)
+if(${adt_demo})
+    ADD_DEFINITIONS(-DADT_DEMO)
+endif()
+
+
+if(${use_rtimulib})
     ADD_DEFINITIONS(-DHAVE_RTIMULIB_H)
 endif()
 
