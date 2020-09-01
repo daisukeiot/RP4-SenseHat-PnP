@@ -143,6 +143,7 @@ void deviceTwin_CB(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char* pa
             {
                 if (json_type(desired_Value) == JSONNumber)
                 {
+                    char buffer[128];
                     uint8_t r = 0;
                     uint8_t g = 0;
                     uint8_t b = 0;
@@ -184,6 +185,15 @@ void deviceTwin_CB(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char* pa
                     }
 
                     led_fill(senseHat->led, r, g, b);
+
+                    if (snprintf(buffer, sizeof(buffer), "{\"led_color\":{\"value\":%d,\"ac\":%d,\"av\":%d,\"ad\":\"LED color set to %d\"}}", led_Color_Value, 200, version, led_Color_Value) < 0)
+                    {
+                        LogError("snprintf building targetTemperature response failed");
+                    }
+                    else
+                    {
+                        updateReportedState(appContext->deviceClient, buffer);
+                    }
                 }
             }
         }
@@ -238,9 +248,9 @@ int processTelemetry(APP_CONTEXT* appContext)
         {
             if (hts221_data.isTemperatureValid)
             {
-#ifdef DEBUG_TELEMETRY
+//#ifdef DEBUG_TELEMETRY
                 printf("Temp   : %f\r\n", hts221_data.temperature);
-#endif
+//#endif
                 json_object_set_number(root_object, "temperature_hts221", hts221_data.temperature);
             }
 
@@ -309,10 +319,10 @@ int processTelemetry(APP_CONTEXT* appContext)
 
         if (json_object_get_count(root_object) > 0)
         {
-//#ifdef DEBUG_TELEMETRY
+#ifdef DEBUG_TELEMETRY
             printf("%s\r\n", json_serialize_to_string_pretty(root_value));
 //            puts(serialized_string);
-//#endif
+#endif
             serialized_string = json_serialize_to_string(root_value);
 
             if (appContext->isConnected)
