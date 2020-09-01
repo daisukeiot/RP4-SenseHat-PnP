@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.8.11)
 project(RP4SenseHat)
 
 option(use_rtimulib "Use RTIMULIB for LSM9DS1" ON)
-option(use_telemetrytrace "Enable additional trace for telemetry and sensor data" ON)
+option(use_telemetrytrace "Enable additional trace for telemetry and sensor data" OFF)
 # option(USE_PYTHONLIB "Use Python for LSM9DS1" OFF)
 
 message("-- use_rtimulib       : " ${use_rtimulib})
@@ -47,7 +47,7 @@ message("-- Configuration types: " ${CMAKE_CONFIGURATION_TYPES})
 
 if(CMAKE_CONFIGURATION_TYPES MATCHES Debug)
     ADD_DEFINITIONS(-DDEBUG)
-    if(use_telemetrytrace)
+    if (${use_telemetrytrace})
         ADD_DEFINITIONS(-DDEBUG_TELEMETRY)
     endif()
 endif()
