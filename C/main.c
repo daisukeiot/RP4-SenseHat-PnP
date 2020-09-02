@@ -216,9 +216,60 @@ IOTHUBMESSAGE_DISPOSITION_RESULT c2d_CB(IOTHUB_MESSAGE_HANDLE message, void* use
 */
 int deviceMethod_CB(const char* methodName, const unsigned char* payload, size_t size, unsigned char** response, size_t* responseSize, void* userContextCallback)
 {
-    LogInfo("%s %s", __func__, methodName);
+    LogInfo("%s %s Payload : %s", __func__, methodName, payload);
     APP_CONTEXT* appContext = (APP_CONTEXT* )userContextCallback;
-    return 0;
+    SENSEHAT_DATA* senseHat = appContext->deviceData;
+    char jsonStr[33];
+    JSON_Value* rootValue = NULL;
+    const char* displayText;
+    int result = 200;
+
+    memcpy(jsonStr, payload, size);
+    jsonStr[size] = '\0';
+
+    if (strcmp(methodName, "show_text") != 0)
+    {
+        LogError("Method name %s is not supported on this component", methodName);
+        const char deviceMethodResponse[] = "{ \"Response\": \"Not Supported\" }";
+        *responseSize = sizeof(deviceMethodResponse)-1;
+        *response = malloc(*responseSize);
+        (void)memcpy(*response, deviceMethodResponse, *responseSize);
+        result = 405;
+    }
+    else if ((rootValue = json_parse_string(jsonStr)) == NULL)
+    {
+        LogError("Unable to parse twin JSON");
+        const char deviceMethodResponse[] = "{ \"Response\": \"Invalid JSON\" }";
+        *responseSize = sizeof(deviceMethodResponse)-1;
+        *response = malloc(*responseSize);
+        (void)memcpy(*response, deviceMethodResponse, *responseSize);
+        result = 400;
+    }
+    else if ((displayText = json_value_get_string(rootValue)) == NULL)
+    {
+        LogError("Cannot retrieve JSON string for command");
+        const char deviceMethodResponse[] = "{ \"Response\": \"Invalid JSON\" }";
+        *responseSize = sizeof(deviceMethodResponse)-1;
+        *response = malloc(*responseSize);
+        (void)memcpy(*response, deviceMethodResponse, *responseSize);
+        result = 400;
+    }
+    else{
+        const char deviceMethodResponse[] = "{ \"Response\": \"Success\" }";
+
+        led_putText(senseHat->led, displayText);
+
+        *responseSize = sizeof(deviceMethodResponse)-1;
+        *response = malloc(*responseSize);
+        (void)memcpy(*response, deviceMethodResponse, *responseSize);
+    }
+
+    if (rootValue)
+    {
+        json_value_free(rootValue);
+    }
+
+    return result;
 }
 
 
@@ -252,7 +303,6 @@ int processTelemetry(APP_CONTEXT* appContext)
 #endif
                 json_object_set_number(root_object, "temperature_hts221", hts221_data.temperature);
             }
-#ifndef ADT_DEMO
             if (hts221_data.isHumidityValid)
             {
 #ifdef DEBUG_TELEMETRY
@@ -260,7 +310,6 @@ int processTelemetry(APP_CONTEXT* appContext)
 #endif
                 json_object_set_number(root_object, "humidity", hts221_data.humidity);
             }
-#endif //ADT_DEMO
         }
 
         if (lps25h_read(senseHat->lps25h, &lps25h_data) >= 0)

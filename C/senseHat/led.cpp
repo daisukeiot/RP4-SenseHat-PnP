@@ -227,7 +227,7 @@ int led_putText(LED_CONFIG* config, const char *strText)
         ThreadAPI_Sleep(500);
     }
 
-
+    led_clear(config);
     return 0;
 }
 
