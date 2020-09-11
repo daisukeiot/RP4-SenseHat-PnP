@@ -110,7 +110,7 @@ IOTHUB_DEVICE_CLIENT_LL_HANDLE IoTHubInitialize(APP_CONTEXT* appConext)
         isConfigured = false;
     }
 #ifdef PNP_ENABLE
-    else if ((iothubResult = IoTHubDeviceClient_LL_SetOption(deviceHandle, OPTION_MODEL_ID, g_pnp_model_id)) != IOTHUB_CLIENT_OK)
+    else if ((g_pnp_model_id) && ((iothubResult = IoTHubDeviceClient_LL_SetOption(deviceHandle, OPTION_MODEL_ID, g_pnp_model_id)) != IOTHUB_CLIENT_OK))
     {
         LogError("Unable to set model ID, error=%d", iothubResult);
         isConfigured = false;
