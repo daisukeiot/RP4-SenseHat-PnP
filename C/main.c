@@ -3,6 +3,7 @@
 #include "iothub/callback.h"
 #include "iothub/iothub_op.h"
 #include <math.h>
+#include "deviceInformation/deviceInformation.h"
 
 static const char ch_led_color[] = "led_color";
 
@@ -12,6 +13,8 @@ int main(int argc, char *argv[])
     char msgBuffer[1024];
     APP_CONTEXT* appContext;
     SENSEHAT_DATA* senseHat;
+    char connectedTime[128];
+    char buffer[256];
 
     printf("Starting Raspberry Pi4 + Sensehat IoT Hub Device App\r\n");
 
@@ -58,6 +61,17 @@ int main(int argc, char *argv[])
             if (appContext->isConnected != true)
             {
                 LogError("IoT Hub connection not established after 10 seconds");
+            }
+            else{
+                BuildUtcTimeFromCurrentTime(connectedTime, sizeof(connectedTime));
+                if (snprintf(buffer, sizeof(buffer), "{\"ConnectedOn\":\"%s\"}", connectedTime) < 0)
+                {
+                    LogError("snprintf building targetTemperature response failed");
+                }
+                else
+                {
+                    updateReportedState(appContext->deviceClient, buffer);
+                }
             }
         }
 
@@ -197,6 +211,16 @@ void deviceTwin_CB(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char* pa
                     }
                 }
             }
+        }
+    }
+
+    if (updateState == DEVICE_TWIN_UPDATE_COMPLETE)
+    {
+        char* deviceInfoBuffer = malloc(512);
+        if (getDeviceInforProperty(deviceInfoBuffer, 512) == 0)
+        {
+            printf("%s\r\n", deviceInfoBuffer);
+            updateReportedState(appContext->deviceClient, deviceInfoBuffer);
         }
     }
 }
@@ -390,4 +414,28 @@ int processTelemetry(APP_CONTEXT* appContext)
 
         json_value_free(root_value);
     }
+}
+
+
+static bool BuildUtcTimeFromCurrentTime(char* utcTimeBuffer, size_t utcTimeBufferSize)
+{
+    bool result;
+    time_t currentTime;
+    struct tm * currentTimeTm;
+     static const char ISO8601Format[] = "%Y-%m-%dT%H:%M:%SZ";
+
+    time(&currentTime);
+    currentTimeTm = gmtime(&currentTime);
+
+    if (strftime(utcTimeBuffer, utcTimeBufferSize, ISO8601Format, currentTimeTm) == 0)
+    {
+        LogError("snprintf on UTC time failed");
+        result = false;
+    }
+    else
+    {
+        result = true;
+    }
+
+    return result;
 }

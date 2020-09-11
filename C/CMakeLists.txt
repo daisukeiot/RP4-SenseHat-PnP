@@ -91,6 +91,7 @@ set(pnp-app_h_files
     ./iothub/deviceMethod.h
     ./iothub/deviceTwin.h
     ./iothub/iothub_op.h
+    ./deviceInformation/deviceInformation.h
     ./main.h
 )
 
@@ -108,6 +109,7 @@ set(pnp-app_c_files
     ./iothub/deviceMethod.c
     ./iothub/deviceTwin.c
     ./iothub/iothub_op.c
+    ./deviceInformation/deviceInformation.c
     ./main.c
 )
 

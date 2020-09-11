@@ -14,5 +14,6 @@ void deviceTwin_CB(DEVICE_TWIN_UPDATE_STATE updateState, const unsigned char* pa
 IOTHUBMESSAGE_DISPOSITION_RESULT c2d_CB(IOTHUB_MESSAGE_HANDLE message, void* userContextCallback);
 int deviceMethod_CB(const char* methodName, const unsigned char* payload, size_t size, unsigned char** response, size_t* responseSize, void* userContextCallback);
 int processTelemetry(APP_CONTEXT* appContext);
+static bool BuildUtcTimeFromCurrentTime(char* utcTimeBuffer, size_t utcTimeBufferSize);
 
 #endif
